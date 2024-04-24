@@ -4,12 +4,12 @@ import {
 	type ResponseQueryOptions,
 } from 'next-sanity'
 import dev from '@/lib/env'
-export { groq } from 'next-sanity'
+export { default as groq } from 'groq'
 
 export const client = createClient({
 	projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
 	dataset: 'production',
-	apiVersion: '2023-12-03',
+	apiVersion: '2024-04-01',
 	useCdn: !dev,
 })
 
@@ -21,9 +21,11 @@ export function fetchSanity<T = any>(
 	}: { params?: QueryParams } & ResponseQueryOptions['next'] = {},
 ) {
 	return client.fetch<T>(query, params, {
-		...(dev && {
+		...(dev ? {
 			token: process.env.NEXT_PUBLIC_SANITY_TOKEN,
 			perspective: 'previewDrafts',
+		} : {
+			perspective: 'published',
 		}),
 		next: {
 			revalidate: dev ? 0 : false,
